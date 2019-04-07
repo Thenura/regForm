@@ -1,16 +1,22 @@
 import React, {Component} from 'react';
-import {StyleSheet, View} from 'react-native';
-import {createStackNavigator} from 'react-navigation'
+import {
+  StyleSheet, 
+  View, 
+  Button, 
+  AppRegistry,
+  ListView,
+  Text,
+  TouchableHighlight
+} from 'react-native';
 
-import RegForm from './app/components/RegForm';
-import ChartForm from './app/components/ChartForm';
+import DataForm from './app/components/DataForm';
+import ListItem from "./app/components/Item";
 
 export default class App extends Component{
-
   render() {
     return (
       <View style={styles.container}>
-        <RegForm/>
+        <DataForm/>
       </View>
     );
   }
@@ -21,6 +27,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     backgroundColor: '#ffffff',
+    paddingTop:24
   }
   
 });

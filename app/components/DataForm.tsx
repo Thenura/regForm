@@ -1,12 +1,12 @@
 import React, {Component} from 'react';
 import {
-    Platform, 
     StyleSheet, 
     Text, 
     View, 
     TextInput, 
     TouchableOpacity,
     AlertIOS,
+    AsyncStorage
 } from 'react-native';
 import { string } from 'prop-types';
 
@@ -21,7 +21,6 @@ interface IRegFormState {
   display: string;
 }
 
-
 export default class RegForm extends Component<IRegFormProps, IRegFormState>{
 
   state: IRegFormState;
@@ -32,17 +31,35 @@ export default class RegForm extends Component<IRegFormProps, IRegFormState>{
       firstName: "",
       lastName: "",
       email: "",
-      display: ""
+      display: "",
 
     };
-    
   }
-
-  buttonListener: () => void  = () => {
+  saveData: () => void  = () => {
     const firstName = this.state.firstName
     const lastName = this.state.lastName;
     const email = this.state.email
-    AlertIOS.alert('Information', firstName + "\n" + lastName + "\n" + email)
+
+    AsyncStorage.setItem("firstName",firstName)
+    AsyncStorage.setItem("lastName", lastName)
+    AsyncStorage.setItem("email", email)
+  }
+
+  showData = async () => {
+      try {
+          let firstName = await AsyncStorage.getItem("firstName")
+          let lastName = await AsyncStorage.getItem("lastName")
+          let email = await AsyncStorage.getItem("email")
+          AlertIOS.alert(
+            'User Data', 
+            "First Name: " + firstName + "\n" + 
+            "Last Name: " + lastName + "\n" + 
+            "Email: " + email
+          )
+      }
+      catch(error){
+        console.log(error)
+      }
   }
 
   render() {
@@ -71,16 +88,21 @@ export default class RegForm extends Component<IRegFormProps, IRegFormState>{
         autoCorrect={false}/>
 
         <TouchableOpacity 
-            style={styles.button} 
-            onPress = {this.buttonListener}>
+            style={styles.button}
+            onPress = {this.saveData}>
             <Text style={{ fontWeight: "bold",}} >Register Now!</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity 
+            style={styles.button} 
+            onPress = {this.showData}>
+            <Text style={{ fontWeight: "bold",}} >View Submission</Text>
+        </TouchableOpacity>
+            
       </View>
     );
   }
 }
-
-
 
 const styles = StyleSheet.create({
   regForm: {
