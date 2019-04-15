@@ -6,12 +6,16 @@ import {
     TextInput, 
     TouchableOpacity,
     AlertIOS,
-    AsyncStorage
+    AsyncStorage,
+    FlatList
 } from 'react-native';
-import { string } from 'prop-types';
+import { string, number } from 'prop-types';
+import {UserManager} from "../users/UserManager"
+import {UserService} from "../users/UserService"
+import {IUser, IDictionary} from "../models/interfaces"
 
 interface IRegFormProps {
-  
+  userManager: UserManager
 }
 
 interface IRegFormState {
@@ -24,6 +28,7 @@ interface IRegFormState {
 export default class RegForm extends Component<IRegFormProps, IRegFormState>{
 
   state: IRegFormState;
+  //public userManager: UserManager;
 
   constructor(props: IRegFormProps) {
     super(props);
@@ -32,36 +37,65 @@ export default class RegForm extends Component<IRegFormProps, IRegFormState>{
       lastName: "",
       email: "",
       display: "",
-
-    };
+      
+    }
   }
-  saveData: () => void  = () => {
-    const firstName = this.state.firstName
-    const lastName = this.state.lastName;
-    const email = this.state.email
 
-    AsyncStorage.setItem("firstName",firstName)
-    AsyncStorage.setItem("lastName", lastName)
-    AsyncStorage.setItem("email", email)
+ onRegisterNowButtonTapped: () => void = () => {
+   UserManager.createUser(contactData)
+   this.userManager.createUser(contactData);
+    
+ // }
+
+  //onViewSubmissionButtonTapped: () => void = () => {
+    // let users: IUser[] = userManager.getAllUsers();
+  //}
+
+  
+  saveData: () => void = async () => {
+    let contactData: IUser = {
+      firstName: this.state.firstName,
+      lastName: this.state.lastName,
+      email: this.state.email,
+    };
+
+    try {
+      let values: string | null = await AsyncStorage.getItem("user");
+
+      if (values) {
+        // An array already exists
+        let existingDictionary: IDictionary<IUser> = JSON.parse(values);
+        existingDictionary[contactData.email] = contactData;
+        await AsyncStorage.setItem('user', JSON.stringify(existingDictionary));
+      
+      } else {
+        // No data exists yet
+        let newDictionary: IDictionary<IUser> = {};
+        newDictionary[contactData.email] = contactData;
+        await AsyncStorage.setItem('user', JSON.stringify(newDictionary));
+      }
+    } catch (error) {
+      console.log(error);
+    }
+
   }
 
   showData = async () => {
       try {
-          let firstName = await AsyncStorage.getItem("firstName")
-          let lastName = await AsyncStorage.getItem("lastName")
-          let email = await AsyncStorage.getItem("email")
-          AlertIOS.alert(
-            'User Data', 
-            "First Name: " + firstName + "\n" + 
-            "Last Name: " + lastName + "\n" + 
-            "Email: " + email
-          )
+          const retrieve = await AsyncStorage.getItem("user");
+
+          if (retrieve) {
+            const values: IDictionary<IUser> = JSON.parse(retrieve);
+            console.log('Retrieved data', values);
+          } else {
+            console.log('No data exists yet.');
+          }
       }
       catch(error){
         console.log(error)
       }
   }
-
+  
   render() {
     return (
       <View style={styles.regForm}>
